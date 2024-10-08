@@ -1,0 +1,43 @@
+# Import necessary libraries
+import os
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import cv2
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.applications import VGG16
+
+# Define dataset path (Ensure you download the dataset from Kaggle and place it in the working directory)
+dataset_path = 'path_to_dataset/food-101/'  # Change this to your actual path
+
+# Load the dataset using ImageDataGenerator for data augmentation and normalization
+train_datagen = ImageDataGenerator(rescale=1./255, 
+                                   rotation_range=20, 
+                                   width_shift_range=0.2, 
+                                   height_shift_range=0.2, 
+                                   shear_range=0.2, 
+                                   zoom_range=0.2, 
+                                   horizontal_flip=True, 
+                                   validation_split=0.2)  # 20% data for validation
+
+# Load training and validation data
+train_generator = train_datagen.flow_from_directory(
+    os.path.join(dataset_path, 'images'),
+    target_size=(224, 224),
+    batch_size=32,
+    class_mode='categorical',
+    subset='training')  # Set as training data
+
+validation_generator = train_datagen.flow_from_directory(
+    os.path.join(dataset_path, 'images'),
+    target_size=(224, 224),
+    batch_size=32,
+    class_mode='categorical',
+    subset='validation')  # Set as validation data
+
+# Check the number of classes (should be 101 food categories)
+print(f"Number of classes: {train_generator.num_classes}")
