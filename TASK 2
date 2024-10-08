@@ -1,0 +1,41 @@
+# Import necessary libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+
+# Load the dataset (Ensure you have downloaded the dataset and placed it in the working directory)
+df = pd.read_csv('Mall_Customers.csv')
+
+# Display the first few rows of the dataset to understand the data
+print(df.head())
+
+# Select relevant features for clustering: 'Annual Income (k$)', 'Spending Score (1-100)'
+X = df[['Annual Income (k$)', 'Spending Score (1-100)']]
+
+# Standardize the features (important for clustering)
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Apply the K-means algorithm
+kmeans = KMeans(n_clusters=5, random_state=42)
+kmeans.fit(X_scaled)
+
+# Get the cluster labels
+df['Cluster'] = kmeans.labels_
+
+# Plot the clusters
+plt.figure(figsize=(10, 6))
+plt.scatter(X_scaled[:, 0], X_scaled[:, 1], c=kmeans.labels_, cmap='rainbow')
+plt.title('Customer Segmentation using K-means Clustering')
+plt.xlabel('Annual Income (scaled)')
+plt.ylabel('Spending Score (scaled)')
+plt.show()
+
+# Display the number of customers in each cluster
+cluster_counts = df['Cluster'].value_counts()
+print(cluster_counts)
+
+# Display the cluster centers
+print("Cluster Centers: ", kmeans.cluster_centers_)
