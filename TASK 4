@@ -1,0 +1,56 @@
+# Import necessary libraries
+import os
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.utils import to_categorical
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.callbacks import EarlyStopping
+
+# Path to dataset (update the path after downloading the dataset)
+dataset_path = 'path_to_dataset/leapGestRecog'  # Change this path
+
+# Parameters
+img_size = 128  # Image size for resizing
+gestures = os.listdir(dataset_path)  # List of gesture classes
+
+# Initialize lists to hold data and labels
+data = []
+labels = []
+
+# Load images and preprocess
+for gesture in gestures:
+    gesture_path = os.path.join(dataset_path, gesture)
+    gesture_label = gestures.index(gesture)
+    
+    for img_name in os.listdir(gesture_path):
+        img_path = os.path.join(gesture_path, img_name)
+        img = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)  # Load in grayscale
+        
+        # Resize image to 128x128
+        img = cv2.resize(img, (img_size, img_size))
+        
+        # Append the image and its label
+        data.append(img)
+        labels.append(gesture_label)
+
+# Convert to numpy arrays
+data = np.array(data)
+labels = np.array(labels)
+
+# Normalize data (Scale pixel values between 0 and 1)
+data = data / 255.0
+
+# Reshape data to add the channel dimension for CNN
+data = data.reshape(-1, img_size, img_size, 1)
+
+# Convert labels to categorical (one-hot encoding)
+labels = to_categorical(labels, num_classes=len(gestures))
+
+# Split the data into training and testing sets (80% training, 20% testing)
+X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2, random_state=42)
+
+print(f"Training data shape: {X_train.shape}")
+print(f"Testing data shape: {X_test.shape}")
